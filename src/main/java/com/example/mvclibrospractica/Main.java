@@ -8,7 +8,7 @@ public class Main {
     public static void main(String[] args) {
         // Se crea la vista y se le pasa al controlador para que la use
         ConsoleView vista = new ConsoleView();
-        StockController controlador = new StockController(vista);
-        controlador.iniciar();
+        StockController controlador = new StockController();
+        controlador.iniciarConsola(vista);
     }
 }
