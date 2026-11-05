@@ -18,37 +18,24 @@
 <head>
     <meta charset="UTF-8">
     <title>Repositorio de Libros</title>
-    <style>
-        body { font-family: Arial, sans-serif; max-width: 950px; margin: 30px auto; padding: 0 15px; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
-        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-        th { background: #2c3e50; color: white; }
-        input { width: 80px; padding: 4px; }
-        button { padding: 4px 10px; cursor: pointer; }
-        .mensaje { background: #e8f4fd; border-left: 4px solid #2980b9; padding: 10px; margin-bottom: 20px; }
-        .agotada { color: #c0392b; font-weight: bold; }
-        .nota { color: #555; font-size: 14px; }
-    </style>
 </head>
 <body>
 
 <h1>Repositorio de Libros</h1>
-<p class="nota">Si una obra esta agotada (stock 0) y se compra stock nuevo, el precio pasa a ser costo nuevo x 1.30</p>
 
 <%-- Mensaje de la ultima accion --%>
 <% if (mensaje != null) { %>
-    <div class="mensaje"><%= mensaje %></div>
+    <p><b>Resultado: <%= mensaje %></b></p>
 <% } %>
 
-<%-- Tabla con las obras, cada fila tiene su formulario de vender y comprar --%>
-<table>
+<%-- Parte 1, la lista de obras solo para ver como esta el stock --%>
+<h2>1. Obras en stock</h2>
+<table border="1" cellpadding="6">
     <tr>
         <th>#</th>
-        <th>Titulo</th>
-        <th>Precio</th>
+        <th>Título</th>
+        <th>Precio de venta</th>
         <th>Stock</th>
-        <th>Vender</th>
-        <th>Comprar stock</th>
     </tr>
     <% for (int i = 0; i < obras.size(); i++) {
         ObraRecord obra = obras.get(i); %>
@@ -58,36 +45,84 @@
         <td>$<%= String.format("%.2f", obra.precio()) %></td>
         <td>
             <%= obra.stock() %>
-            <% if (obra.stock() == 0) { %><span class="agotada">Agotada</span><% } %>
-        </td>
-        <td>
-            <form method="post" action="libros">
-                <input type="hidden" name="accion" value="vender">
-                <input type="hidden" name="posicion" value="<%= i %>">
-                <input type="number" name="cantidad" min="1" placeholder="Cantidad" required>
-                <button type="submit">Vender</button>
-            </form>
-        </td>
-        <td>
-            <form method="post" action="libros">
-                <input type="hidden" name="accion" value="comprar">
-                <input type="hidden" name="posicion" value="<%= i %>">
-                <input type="number" name="cantidad" min="1" placeholder="Cantidad" required>
-                <input type="number" name="costo" min="0.01" step="0.01" placeholder="Costo c/u" required>
-                <button type="submit">Comprar</button>
-            </form>
+            <% if (obra.stock() == 0) { %>(agotada)<% } %>
         </td>
     </tr>
     <% } %>
 </table>
 
-<%-- Formulario para agregar una obra nueva --%>
-<h2>Agregar obra</h2>
+<hr>
+
+<%-- Parte 2, vender resta ejemplares del stock --%>
+<h2>2. Vender</h2>
+<p>Elige la obra y cuántos ejemplares se venden.</p>
+<form method="post" action="libros">
+    <input type="hidden" name="accion" value="vender">
+
+    Obra:
+    <select name="posicion">
+        <% for (int i = 0; i < obras.size(); i++) { %>
+            <option value="<%= i %>"><%= i + 1 %>. <%= limpiar(obras.get(i).titulo()) %> (stock <%= obras.get(i).stock() %>)</option>
+        <% } %>
+    </select>
+    <br><br>
+
+    Cantidad a vender:
+    <input type="number" name="cantidad" min="1" required>
+    <br><br>
+
+    <button type="submit">Vender</button>
+</form>
+
+<hr>
+
+<%-- Parte 3, comprar suma stock y aplica la regla del precio --%>
+<h2>3. Comprar stock</h2>
+<p>
+    Si la obra está agotada (stock 0), el precio nuevo será <b>costo x 1.30</b>.<br>
+    Si todavía tiene stock, el precio no cambia.
+</p>
+<form method="post" action="libros">
+    <input type="hidden" name="accion" value="comprar">
+
+    Obra:
+    <select name="posicion">
+        <% for (int i = 0; i < obras.size(); i++) { %>
+            <option value="<%= i %>"><%= i + 1 %>. <%= limpiar(obras.get(i).titulo()) %> (stock <%= obras.get(i).stock() %>)</option>
+        <% } %>
+    </select>
+    <br><br>
+
+    Cantidad comprada:
+    <input type="number" name="cantidad" min="1" required>
+    <br><br>
+
+    Costo de cada ejemplar: $
+    <input type="number" name="costo" min="0.01" step="0.01" required>
+    <br><br>
+
+    <button type="submit">Comprar</button>
+</form>
+
+<hr>
+
+<%-- Parte 4, agregar una obra nueva a la lista --%>
+<h2>4. Agregar obra nueva</h2>
 <form method="post" action="libros">
     <input type="hidden" name="accion" value="agregar">
-    <input type="text" name="titulo" placeholder="Titulo" style="width: 250px;" required>
-    <input type="number" name="precio" min="0" step="0.01" placeholder="Precio" required>
-    <input type="number" name="stock" min="0" placeholder="Stock" required>
+
+    Título:
+    <input type="text" name="titulo" required>
+    <br><br>
+
+    Precio de venta: $
+    <input type="number" name="precio" min="0" step="0.01" required>
+    <br><br>
+
+    Stock inicial:
+    <input type="number" name="stock" min="0" required>
+    <br><br>
+
     <button type="submit">Agregar</button>
 </form>
 

@@ -22,7 +22,7 @@ public class StockController {
         obras.add(new ObraRecord("La Odisea", 18.50, 3));
     }
 
-    // ===== Logica del stock =====
+    // Logica del stock
 
     // Devuelve todas las obras para mostrarlas
     public List<ObraRecord> getObras() {
